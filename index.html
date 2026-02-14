@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Викторина по электробезопасности</title>
     <style>
+        :root {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --container-bg: white;
+            --text-color: #333;
+            --header-color: #667eea;
+            --border-color: #e0e0e0;
+            --question-bg: #f8f9fa;
+            --answer-hover-bg: #f8f9fa;
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient-start: #0f0c29;
+            --bg-gradient-end: #302b63;
+            --container-bg: #1a1a2e;
+            --text-color: #ffffff;
+            --header-color: #00d4ff;
+            --border-color: #3a3a52;
+            --question-bg: #16213e;
+            --answer-hover-bg: #1e2a47;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,22 +35,125 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            transition: background 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Звёздный фон для темной темы */
+        [data-theme="dark"] body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 60px 70px, #fff, transparent),
+                radial-gradient(1px 1px at 50px 50px, #ddd, transparent),
+                radial-gradient(1px 1px at 130px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 90px 10px, #eee, transparent),
+                radial-gradient(1px 1px at 200px 150px, #fff, transparent),
+                radial-gradient(1px 1px at 170px 120px, #ddd, transparent),
+                radial-gradient(2px 2px at 250px 60px, #eee, transparent);
+            background-size: 300px 300px;
+            background-position: 0 0, 40px 60px, 130px 270px, 70px 100px;
+            animation: twinkle 200s linear infinite;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Падающие звезды */
+        [data-theme="dark"] body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            overflow: hidden;
+            pointer-events: none;
+            animation: shootingStar 15s linear infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { 
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.3;
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes shootingStar {
+            0% {
+                background-position: 100% 0%;
+            }
+            100% {
+                background-position: 0% 100%;
+            }
+        }
+
+        /* Редкие падающие звезды */
+        @keyframes shoot {
+            0% {
+                transform: translateX(0) translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-300px) translateY(300px);
+                opacity: 0;
+            }
         }
 
         .container {
-            background: white;
+            background: var(--container-bg);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             max-width: 800px;
             width: 100%;
             padding: 40px;
             animation: slideIn 0.5s ease-out;
+            transition: background 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--container-bg);
+            border: 2px solid var(--border-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(180deg) scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
         }
 
         @keyframes slideIn {
@@ -49,7 +174,7 @@
         }
 
         .header h1 {
-            color: #667eea;
+            color: var(--header-color);
             font-size: 2em;
             margin-bottom: 10px;
         }
@@ -62,7 +187,7 @@
             border: none;
             font-size: 1.8em;
             cursor: pointer;
-            color: #000;
+            color: var(--text-color);
             width: 40px;
             height: 40px;
             display: flex;
@@ -86,7 +211,7 @@
         .progress-bar {
             width: 100%;
             height: 8px;
-            background: #e0e0e0;
+            background: var(--border-color);
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 20px;
@@ -94,30 +219,32 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, var(--header-color), #764ba2);
             transition: width 0.3s ease;
         }
 
         .question-info {
-            background: #f8f9fa;
+            background: var(--question-bg);
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid var(--header-color);
+            transition: background 0.3s ease;
         }
 
         .question-number {
             font-weight: bold;
-            color: #667eea;
+            color: var(--header-color);
             font-size: 1.1em;
             margin-bottom: 5px;
         }
 
         .question-text {
-            color: #333;
+            color: var(--text-color);
             font-size: 1.2em;
             line-height: 1.6;
             margin: 20px 0;
+            font-weight: 500;
         }
 
         .answers {
@@ -128,20 +255,20 @@
         }
 
         .answer-btn {
-            background: white;
-            border: 2px solid #e0e0e0;
+            background: var(--container-bg);
+            border: 2px solid var(--border-color);
             padding: 20px;
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: left;
             font-size: 1em;
-            color: #333;
+            color: var(--text-color);
         }
 
         .answer-btn:hover {
-            border-color: #667eea;
-            background: #f8f9fa;
+            border-color: var(--header-color);
+            background: var(--answer-hover-bg);
             transform: translateX(5px);
         }
 
@@ -149,12 +276,25 @@
             background: #d4edda;
             border-color: #28a745;
             animation: pulse 0.5s;
+            color: #155724;
         }
 
         .answer-btn.incorrect {
             background: #f8d7da;
             border-color: #dc3545;
             animation: shake 0.5s;
+            color: #721c24;
+        }
+
+        /* Темная тема - делаем текст черным в выбранных ответах */
+        [data-theme="dark"] .answer-btn.correct {
+            color: #000;
+            background: #d4edda;
+        }
+
+        [data-theme="dark"] .answer-btn.incorrect {
+            color: #000;
+            background: #f8d7da;
         }
 
         .answer-btn.disabled {
@@ -218,7 +358,7 @@
         .score {
             text-align: center;
             font-size: 1.3em;
-            color: #667eea;
+            color: var(--header-color);
             margin-bottom: 20px;
         }
 
@@ -228,14 +368,14 @@
         }
 
         .final-score h2 {
-            color: #667eea;
+            color: var(--header-color);
             font-size: 2.5em;
             margin-bottom: 20px;
         }
 
         .final-score p {
             font-size: 1.3em;
-            color: #666;
+            color: var(--text-color);
             margin-bottom: 30px;
         }
 
@@ -265,6 +405,15 @@
             backdrop-filter: blur(10px);
         }
 
+        /* Черный цвет для светлой темы */
+        :root .author {
+            color: #000;
+        }
+
+        [data-theme="dark"] .author {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
         .author a {
             color: rgba(255, 255, 255, 1);
             text-decoration: none;
@@ -281,13 +430,13 @@
         }
 
         .start-screen h2 {
-            color: #667eea;
+            color: var(--header-color);
             font-size: 2em;
             margin-bottom: 20px;
         }
 
         .start-screen p {
-            color: #666;
+            color: var(--text-color);
             font-size: 1.1em;
             margin-bottom: 30px;
             line-height: 1.6;
@@ -330,10 +479,13 @@
 </head>
 <body>
     <div class="container">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Переключить тему">
+            <span id="theme-icon">🌙</span>
+        </button>
+        
         <div class="start-screen" id="startScreen">
             <h2>🔌 Викторина по Спец.Тех.</h2>
-            <p>Проверьте свои знания перед экзаменном у дракулы! <br>
-                Ответы на 90% правильные но могут содержать ошибки <br>
+            <p>Проверьте свои знания по электробезопасности и электроустановкам!<br>
             База содержит <strong>155 вопросов</strong> разной сложности.</p>
             
             <div style="margin: 30px 0;">
@@ -351,7 +503,7 @@
         <div class="quiz-content" id="quizContent">
             <div class="header">
                 <button class="finish-early-btn" onclick="finishEarly()" title="Завершить досрочно">✕</button>
-                <h1>🔌 Викторина по Спец.Тех.</h1>
+                <h1>⚡ Викторина по Спец.Тех.</h1>
                 <div class="score" id="score">Правильных ответов: 0 из 0</div>
             </div>
 
@@ -372,12 +524,37 @@
             <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Следующий вопрос →</button>
         </div>
 
-        <div class="author" style="color: black;>
-            Создано при помощи <a href="https://claude.ai"  target="_blank" style="color: black;">Claude AI</a> | Sergey Vurganov
+        <div class="author">
+            Claude AI | Sergey Vurganov
         </div>
     </div>
 
     <script>
+        // Функция переключения темы
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            const icon = document.getElementById('theme-icon');
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Меняем иконку
+            icon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+        }
+
+        // Загружаем сохраненную тему или устанавливаем темную по умолчанию
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const icon = document.getElementById('theme-icon');
+            
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (icon) {
+                icon.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+            }
+        })();
+
         const questions = [
             {
                 category: "Технические мероприятия",
